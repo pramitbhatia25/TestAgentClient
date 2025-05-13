@@ -2,7 +2,7 @@ function Pricing() {
   const plans = [
     {
       name: "Basic",
-      price: "$29",
+      price: "$19",
       period: "month",
       features: [
         "Access to Price and Market Data Agent",
@@ -13,7 +13,7 @@ function Pricing() {
     },
     {
       name: "Professional",
-      price: "$79",
+      price: "$49",
       period: "month",
       features: [
         "All Basic features",
@@ -39,6 +39,10 @@ function Pricing() {
       ]
     }
   ];
+
+  const handleGetStarted = () => {
+    window.open('https://calendly.com/prashanthkonda/bullrun', '_blank');
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -96,6 +100,7 @@ function Pricing() {
                     ? 'bg-green-400 text-black hover:bg-green-500'
                     : 'bg-[#2e3d5c] text-white hover:bg-[#3a4d6c]'
                 }`}
+                onClick={handleGetStarted}
               >
                 Get Started
               </button>
