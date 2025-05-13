@@ -108,7 +108,20 @@ function ChatCongressTransactions() {
     const isInitialMount = useRef(true);
     const [selectedYear, setSelectedYear] = useState("");
     const [selectedRepresentative, setSelectedRepresentative] = useState("");
-    const [sessionId] = useState(`s_congress_${Date.now()}`);
+    
+    // Generate unique user ID using timestamp
+    const [userId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `u_${timestamp}_${random}`;
+    });
+
+    // Generate unique session ID using timestamp
+    const [sessionId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `s_${timestamp}_${random}`;
+    });
 
     const adjustTextareaHeight = () => {
         const textarea = textareaRef.current;
@@ -142,7 +155,7 @@ function ChatCongressTransactions() {
 
             // Try to initialize session
             try {
-                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/u_123/sessions/${sessionId}`, {
+                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/${userId}/sessions/${sessionId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -170,7 +183,7 @@ function ChatCongressTransactions() {
                 },
                 body: JSON.stringify({
                     app_name: "test_agent",
-                    user_id: "u_123",
+                    user_id: userId,  // Use the unique userId
                     session_id: sessionId,
                     new_message: {
                         role: "user",
@@ -250,6 +263,12 @@ function ChatCongressTransactions() {
                 return newMessages;
             });
             setIsLoading(false);
+            // Add focus to textarea after response is complete
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.focus();
+                }
+            }, 100);
 
         } catch (error) {
             console.error('Error in chat:', error);

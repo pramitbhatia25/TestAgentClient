@@ -95,7 +95,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={handleError}
-            hosted_domain="cybriant.com"
+            hosted_domain="bullrun.ai"
             theme="filled_black"
             shape="pill"
             size="medium"
@@ -115,7 +115,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
             LinkedIn
           </a>
           <a
-            href="https://calendly.com/cybriant"
+            href="https://calendly.com/prashanthkonda/bullrun"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-700 hover:bg-gray-700 rounded-md transition-colors h-[28px]"

@@ -268,7 +268,20 @@ function ChatFundamentals() {
     const [isLoadingData, setIsLoadingData] = useState(false);
     const [oneMonthData, setOneMonthData] = useState(null);
     const isInitialMount = useRef(true);
-    const [sessionId] = useState(`s_fundamentals`);
+    
+    // Generate unique user ID using timestamp
+    const [userId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `u_${timestamp}_${random}`;
+    });
+
+    // Generate unique session ID using timestamp
+    const [sessionId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `s_${timestamp}_${random}`;
+    });
 
     const adjustTextareaHeight = () => {
         const textarea = textareaRef.current;
@@ -294,7 +307,6 @@ function ChatFundamentals() {
                 loading: true
             };
             
-            // Use functional update to ensure we're working with latest state
             setMessages(prev => [...prev, newMessage]);
             setInput("");
             if (textareaRef.current) {
@@ -303,7 +315,7 @@ function ChatFundamentals() {
 
             // Try to initialize session
             try {
-                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/u_123/sessions/${sessionId}`, {
+                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/${userId}/sessions/${sessionId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -331,7 +343,7 @@ function ChatFundamentals() {
                 },
                 body: JSON.stringify({
                     app_name: "test_agent",
-                    user_id: "u_123",
+                    user_id: userId,  // Use the unique userId
                     session_id: sessionId,
                     new_message: {
                         role: "user",
@@ -412,6 +424,12 @@ function ChatFundamentals() {
                 return newMessages;
             });
             setIsLoading(false);
+            // Add focus to textarea after response is complete
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.focus();
+                }
+            }, 100);
 
         } catch (error) {
             console.error('Error in chat:', error);
@@ -521,7 +539,7 @@ function ChatFundamentals() {
                                         size="sm"
                                         classNames={{
                                             base: "w-full",
-                                            trigger: "bg-[#1a1a1a] text-white text-sm rounded-lg border border-white/30 focus:border-white/50 focus:outline-none",
+                                            trigger: "bg-black text-sm rounded-lg border border-white/30 focus:border-white/50 focus:outline-none",
                                             value: "text-white",
                                             listbox: "bg-[#1a1a1a] text-white",
                                             popover: "bg-[#1a1a1a]"
@@ -531,7 +549,7 @@ function ChatFundamentals() {
                                             <AutocompleteItem key={indicator.id} value={indicator.id}>
                                                 <div className="flex flex-col">
                                                     <span>{indicator.name}</span>
-                                                    <span className="text-xs text-white/60">{indicator.description}</span>
+                                                    <span className="text-xs text-black/50">{indicator.description}</span>
                                                 </div>
                                             </AutocompleteItem>
                                         ))}
@@ -540,7 +558,7 @@ function ChatFundamentals() {
                                 {/* Full Analysis Button - 20% width */}
                                 <div className="flex-[0.2]">
                                     <button
-                                        className={`w-full px-3 py-1 text-sm rounded-lg transition-colors ${
+                                        className={`w-full px-3 py-2 text-sm rounded-lg transition-colors ${
                                             selected 
                                                 ? 'bg-[#2e3d5c] text-white hover:bg-[#3a4d6e]' 
                                                 : 'bg-[#2a2a2a] text-white/40 cursor-not-allowed'
@@ -616,81 +634,74 @@ function ChatFundamentals() {
                                                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-400 border-t-blue-500" />
                                             </div>
                                         ) : stockData?.history && stockData.history.length > 0 ? (
-                                            <Plot
-                                                data={[
-                                                    {
-                                                        x: stockData.history.map(h => new Date(h.datetime)),
-                                                        y: stockData.history.map(h => {
-                                                            // Return different values based on selected indicator
-                                                            switch(selectedIndicator) {
-                                                                case "price":
-                                                                    return h.price;
-                                                                case "rsi":
-                                                                    return h.rsi || 0; // Add RSI data if available
-                                                                case "macd":
-                                                                    return h.macd || 0; // Add MACD data if available
-                                                                default:
-                                                                    return h.price;
-                                                            }
-                                                        }),
-                                                        type: 'scatter',
-                                                        mode: 'lines+markers',
-                                                        name: selectedIndicator === "price" ? selected.symbol : INDICATORS.find(i => i.id === selectedIndicator)?.name,
-                                                        line: {
-                                                            color: selectedIndicator === "price" 
-                                                                ? (stockData.history[0].price >= stockData.history[1].price ? '#22c55e' : '#ef4444')
-                                                                : '#22c55e',
-                                                            width: 2
+                                            selectedIndicator === "price" ? (
+                                                <Plot
+                                                    data={[
+                                                        {
+                                                            x: stockData.history.map(h => new Date(h.datetime)),
+                                                            y: stockData.history.map(h => h.price),
+                                                            type: 'scatter',
+                                                            mode: 'lines+markers',
+                                                            name: selected.symbol,
+                                                            line: {
+                                                                color: stockData.history[0].price >= stockData.history[1].price ? '#22c55e' : '#ef4444',
+                                                                width: 2
+                                                            },
+                                                            marker: {
+                                                                color: '#fff',
+                                                                size: 6,
+                                                                line: { color: '#333', width: 1 }
+                                                            },
+                                                            hovertemplate: '%{x}<br>Price: $%{y:.2f}<extra></extra>',
                                                         },
-                                                        marker: {
-                                                            color: '#fff',
-                                                            size: 6,
-                                                            line: { color: '#333', width: 1 }
+                                                    ]}
+                                                    layout={{
+                                                        title: {
+                                                            text: `${selected.symbol} Price Chart`,
+                                                            font: { color: '#fff', size: 18 }
                                                         },
-                                                        hovertemplate: selectedIndicator === "price" 
-                                                            ? '%{x}<br>Price: $%{y:.2f}<extra></extra>'
-                                                            : '%{x}<br>%{y:.2f}<extra></extra>',
-                                                    },
-                                                ]}
-                                                layout={{
-                                                    title: {
-                                                        text: selectedIndicator === "price" 
-                                                            ? `${selected.symbol} Price Chart`
-                                                            : `${INDICATORS.find(i => i.id === selectedIndicator)?.name} for ${selected.symbol}`,
-                                                        font: { color: '#fff', size: 18 }
-                                                    },
-                                                    paper_bgcolor: '#1a1a1a',
-                                                    plot_bgcolor: '#1a1a1a',
-                                                    margin: { t: 50, r: 30, b: 60, l: 60 },
-                                                    xaxis: {
-                                                        title: { text: 'Time', font: { color: '#fff', size: 14 } },
-                                                        showgrid: true,
-                                                        gridcolor: '#333',
-                                                        zeroline: false,
-                                                        tickfont: { color: '#fff' }
-                                                    },
-                                                    yaxis: {
-                                                        title: { text: 'Price (USD)', font: { color: '#fff', size: 14 } },
-                                                        showgrid: true,
-                                                        gridcolor: '#333',
-                                                        zeroline: false,
-                                                        tickfont: { color: '#fff' }
-                                                    },
-                                                    height: 300,
-                                                    autosize: true,
-                                                    showlegend: true,
-                                                    legend: {
-                                                        font: { color: '#fff' },
-                                                        orientation: 'h',
-                                                        y: -0.2
-                                                    }
-                                                }}
-                                                config={{
-                                                    displayModeBar: false,
-                                                    responsive: true
-                                                }}
-                                                style={{ width: '100%' }}
-                                            />
+                                                        paper_bgcolor: '#1a1a1a',
+                                                        plot_bgcolor: '#1a1a1a',
+                                                        margin: { t: 50, r: 30, b: 60, l: 60 },
+                                                        xaxis: {
+                                                            title: { text: 'Time', font: { color: '#fff', size: 14 } },
+                                                            showgrid: true,
+                                                            gridcolor: '#333',
+                                                            zeroline: false,
+                                                            tickfont: { color: '#fff' }
+                                                        },
+                                                        yaxis: {
+                                                            title: { text: 'Price (USD)', font: { color: '#fff', size: 14 } },
+                                                            showgrid: true,
+                                                            gridcolor: '#333',
+                                                            zeroline: false,
+                                                            tickfont: { color: '#fff' }
+                                                        },
+                                                        height: 300,
+                                                        autosize: true,
+                                                        showlegend: true,
+                                                        legend: {
+                                                            font: { color: '#fff' },
+                                                            orientation: 'h',
+                                                            y: -0.2
+                                                        }
+                                                    }}
+                                                    config={{
+                                                        displayModeBar: false,
+                                                        responsive: true
+                                                    }}
+                                                    style={{ width: '100%' }}
+                                                />
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center h-[300px] text-white/60">
+                                                    <div className="text-lg font-semibold mb-2">Coming Soon</div>
+                                                    <div className="text-sm text-center max-w-[300px]">
+                                                        {selectedIndicator === "rsi" 
+                                                            ? "Relative Strength Index (RSI) analysis will be available in the next update."
+                                                            : "Moving Average Convergence Divergence (MACD) analysis will be available in the next update."}
+                                                    </div>
+                                                </div>
+                                            )
                                         ) : (
                                             <div className="flex items-center justify-center h-[300px] text-white/60">
                                                 No data available for this interval

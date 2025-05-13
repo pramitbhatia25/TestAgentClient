@@ -91,10 +91,20 @@ function ChatNews() {
     const [newsData, setNewsData] = useState([]);
     const isInitialMount = useRef(true);
     const [isNewsLoading, setIsNewsLoading] = useState(true);
-    const [sessionId] = useState(`s_news_${Date.now()}`);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const [sortConfig, setSortConfig] = useState({ key: 'time_published', direction: 'desc' });
+    
+    // Generate unique user ID using timestamp
+    const [userId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `u_${timestamp}_${random}`;
+    });
+
+    // Generate unique session ID using timestamp
+    const [sessionId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `s_${timestamp}_${random}`;
+    });
 
     // Fetch news data
     useEffect(() => {
@@ -146,7 +156,7 @@ function ChatNews() {
 
             // Try to initialize session
             try {
-                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/u_123/sessions/${sessionId}`, {
+                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/${userId}/sessions/${sessionId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -174,7 +184,7 @@ function ChatNews() {
                 },
                 body: JSON.stringify({
                     app_name: "test_agent",
-                    user_id: "u_123",
+                    user_id: userId,  // Use the unique userId
                     session_id: sessionId,
                     new_message: {
                         role: "user",
@@ -254,6 +264,12 @@ function ChatNews() {
                 return newMessages;
             });
             setIsLoading(false);
+            // Add focus to textarea after response is complete
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.focus();
+                }
+            }, 100);
 
         } catch (error) {
             console.error('Error in chat:', error);
@@ -294,42 +310,6 @@ function ChatNews() {
     // Add handleCopy function
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
-    };
-
-    // Add pagination
-    const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
-    const paginatedNews = filteredNews.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-    // Add pagination controls
-    const handlePagination = (action) => {
-        if (action === 'prev' && currentPage > 1) {
-            setCurrentPage(prev => prev - 1);
-        } else if (action === 'next' && currentPage < totalPages) {
-            setCurrentPage(prev => prev + 1);
-        }
-    };
-
-    // Add sorting functionality
-    const sortedNews = [...filteredNews].sort((a, b) => {
-        if (sortConfig.key === 'time_published') {
-            return sortConfig.direction === 'asc' 
-                ? new Date(a.time_published) - new Date(b.time_published)
-                : new Date(b.time_published) - new Date(a.time_published);
-        }
-        return sortConfig.direction === 'asc'
-            ? a[sortConfig.key] > b[sortConfig.key] ? 1 : -1
-            : a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
-    });
-
-    // Add sort handler
-    const handleSort = (key) => {
-        setSortConfig(prev => ({
-            key,
-            direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-        }));
     };
 
     return (
@@ -401,12 +381,7 @@ function ChatNews() {
                                         <table className="w-full">
                                             <thead>
                                                 <tr className="border-b border-white/10">
-                                                    <th 
-                                                        className="text-left py-1 px-2 text-white/70 text-xs font-medium cursor-pointer"
-                                                        onClick={() => handleSort('time_published')}
-                                                    >
-                                                        Time {sortConfig.key === 'time_published' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                                                    </th>
+                                                    <th className="text-left py-1 px-2 text-white/70 text-xs font-medium">Time</th>
                                                     <th className="text-left py-1 px-2 text-white/70 text-xs font-medium">Source</th>
                                                     <th className="text-left py-1 px-2 text-white/70 text-xs font-medium">Title</th>
                                                     <th className="text-left py-1 px-2 text-white/70 text-xs font-medium">Sentiment</th>
@@ -414,7 +389,7 @@ function ChatNews() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {paginatedNews.map((row, idx) => (
+                                                {filteredNews.map((row, idx) => (
                                                     <tr key={idx} className="border-b border-white/5 hover:bg-white/5">
                                                         <td className="py-1 px-2 text-white text-xs">{new Date(row.time_published).toLocaleString()}</td>
                                                         <td className="py-1 px-2 text-white text-xs">{row.source}</td>
@@ -430,25 +405,6 @@ function ChatNews() {
                                             </tbody>
                                         </table>
                                     )}
-                                </div>
-                                <div className="flex justify-between items-center mt-4">
-                                    <button
-                                        onClick={() => handlePagination('prev')}
-                                        disabled={currentPage === 1}
-                                        className="px-3 py-1 bg-[#2a2a2a] text-white rounded-lg disabled:opacity-50"
-                                    >
-                                        Previous
-                                    </button>
-                                    <span className="text-white/70">
-                                        Page {currentPage} of {totalPages}
-                                    </span>
-                                    <button
-                                        onClick={() => handlePagination('next')}
-                                        disabled={currentPage === totalPages}
-                                        className="px-3 py-1 bg-[#2a2a2a] text-white rounded-lg disabled:opacity-50"
-                                    >
-                                        Next
-                                    </button>
                                 </div>
                             </div>
 

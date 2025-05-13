@@ -291,6 +291,12 @@ function ChatEarnings() {
                 return newMessages;
             });
             setIsLoading(false);
+            // Add focus to textarea after response is complete
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.focus();
+                }
+            }, 100);
 
         } catch (error) {
             console.error('Error in chat:', error);

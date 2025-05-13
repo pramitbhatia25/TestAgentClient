@@ -1,6 +1,6 @@
 import UpdatedNavbar from "../components/UpdatedNavbar";
 import { useRef, useState, useEffect } from "react";
-import { Send, SendHorizonal, ThumbsUp, ThumbsDown, Copy, TrendingUp, LineChart, Vote } from "lucide-react";
+import { Send, SendHorizonal, ThumbsUp, ThumbsDown, Copy, TrendingUp, LineChart, Vote, Calendar } from "lucide-react";
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
@@ -85,12 +85,25 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
     const bottomRef = useRef(null);
-    const [sessionId] = useState(`s_123`);
+    
+    // Generate unique user ID using timestamp
+    const [userId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `u_${timestamp}_${random}`;
+    });
+
+    // Generate unique session ID using timestamp
+    const [sessionId] = useState(() => {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 8);
+        return `s_${timestamp}_${random}`;
+    });
 
     useEffect(() => {
         const initializeSession = async () => {
             try {
-                await fetch(`${SERVER_URL}/apps/test_agent/users/u_123/sessions/s_123`, {
+                await fetch(`${SERVER_URL}/apps/test_agent/users/${userId}/sessions/${sessionId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -102,7 +115,7 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
         };
 
         initializeSession();
-    }, []);
+    }, [sessionId, userId]); // Add userId as dependency
 
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
@@ -119,13 +132,12 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                 loading: true
             };
             
-            // Use functional update to ensure we're working with latest state
             updateMessages(prev => [...prev, newMessage]);
             setInput("");
 
             // Try to initialize session, but don't treat "already exists" as an error
             try {
-                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/u_123/sessions/s_123`, {
+                const sessionResponse = await fetch(`${SERVER_URL}/apps/test_agent/users/${userId}/sessions/${sessionId}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -137,7 +149,7 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                 
                 if (!sessionResponse.ok) {
                     const errorData = await sessionResponse.json();
-                    if (!(sessionResponse.status === 400 && errorData.detail === "Session already exists: s_123")) {
+                    if (!(sessionResponse.status === 400 && errorData.detail === `Session already exists: ${sessionId}`)) {
                         throw new Error('Failed to initialize session');
                     }
                 }
@@ -153,15 +165,15 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                 },
                 body: JSON.stringify({
                     app_name: "test_agent",
-                    user_id: "u_123",
-                    session_id: "s_123",
+                    user_id: userId,  // Use the unique userId
+                    session_id: sessionId,
                     new_message: {
                         role: "user",
                         parts: [{
                             text: input.trim()
                         }]
                     },
-                    streaming: true // Enable token-level streaming
+                    streaming: true
                 })
             });
 
@@ -234,12 +246,38 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                 return newMessages;
             });
             setIsLoading(false);
+            // Add a small delay before focusing
+            setTimeout(() => {
+                if (textareaRef.current) {
+                    textareaRef.current.focus();
+                }
+            }, 100);
 
         } catch (error) {
             console.error('Error in chat:', error);
             setError('Failed to send message. Please try again.');
             setIsLoading(false);
         }
+    };
+
+    // Add new function to simulate typing
+    const simulateTyping = async (text) => {
+        if (isLoading) return;
+        
+        // Clear any existing input
+        setInput("");
+        
+        // Simulate typing with a smaller delay between characters
+        for (let i = 0; i < text.length; i++) {
+            setInput(prev => prev + text[i]);
+            await new Promise(resolve => setTimeout(resolve, 10)); // Reduced from 30ms to 10ms
+        }
+        
+        // Wait a moment after typing is complete
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Send the message
+        handleSend();
     };
 
     useEffect(() => {
@@ -309,28 +347,39 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 sm:gap-2 mt-2 sm:mt-3">
                             {/* Card 1 - Price and Market Data */}
-                            <div className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1">
+                            <div 
+                                onClick={() => simulateTyping("Compare AAPL, TSLA and NVDA Stock Price over the 2023-2024 period.")}
+                                className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1 cursor-pointer hover:bg-white/5"
+                            >
                                 <div className="font-semibold text-xs mb-1 flex items-center gap-2">
                                     <TrendingUp className="w-4 h-4" />
-                                    Real-time Market Data
+                                    Price & Market Data
                                 </div>
-                                <div className="text-xs text-white/50 italic">"What's the current price and trading volume of AAPL?"</div>
+                                <div className="text-xs text-white/70">Compare AAPL, TSLA and NVDA Stock Price over the 2023-2024 period.</div>
                             </div>
+
                             {/* Card 2 - Company Information */}
-                            <div className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1">
+                            <div 
+                                onClick={() => simulateTyping("Is latest news about TSLA bullish or bearish?")}
+                                className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1 cursor-pointer hover:bg-white/5"
+                            >
                                 <div className="font-semibold text-xs mb-1 flex items-center gap-2">
                                     <LineChart className="w-4 h-4" />
-                                    Company Analysis
+                                    Company News
                                 </div>
-                                <div className="text-xs text-white/50 italic">"Show me Microsoft's financial statements and valuation metrics"</div>
+                                <div className="text-xs text-white/70">Is latest news about TSLA bullish or bearish?</div>
                             </div>
+
                             {/* Card 3 - Technical Analysis */}
-                            <div className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1">
+                            <div 
+                                onClick={() => simulateTyping("Compare technical indicators for AAPL, TSLA and NVDA.")}
+                                className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1 cursor-pointer hover:bg-white/5"
+                            >
                                 <div className="font-semibold text-xs mb-1 flex items-center gap-2">
                                     <Vote className="w-4 h-4" />
-                                    Technical Indicators
+                                    Technical Analysis
                                 </div>
-                                <div className="text-xs text-white/50 italic">"What are the current technical indicators for TSLA?"</div>
+                                <div className="text-xs text-white/70">Compare technical indicators for AAPL, TSLA and NVDA.</div>
                             </div>
                         </div>
                         
