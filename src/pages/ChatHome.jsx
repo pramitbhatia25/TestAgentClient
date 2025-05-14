@@ -10,28 +10,28 @@ import { SERVER_URL } from '../providers/server';
 // Add the markdown components configuration
 const componentsMD = {
     h1: ({ node, ...props }) => (
-        <h1 className="text-2xl font-bold m-0 mb-3 mt-3" {...props} />
+        <h1 className="text-xl sm:text-2xl font-bold m-0 mb-2 sm:mb-3 mt-2 sm:mt-3" {...props} />
     ),
     h2: ({ node, ...props }) => (
-        <h2 className="text-xl font-semibold m-0 mb-2 mt-2" {...props} />
+        <h2 className="text-lg sm:text-xl font-semibold m-0 mb-1.5 sm:mb-2 mt-1.5 sm:mt-2" {...props} />
     ),
     h3: ({ node, ...props }) => (
-        <h3 className="text-lg font-semibold m-0 mb-2 mt-2" {...props} />
+        <h3 className="text-base sm:text-lg font-semibold m-0 mb-1.5 sm:mb-2 mt-1.5 sm:mt-2" {...props} />
     ),
     h4: ({ node, ...props }) => (
-        <h4 className="text-base font-medium m-0 mb-1 mt-1" {...props} />
+        <h4 className="text-sm sm:text-base font-medium m-0 mb-1 mt-1" {...props} />
     ),
     p: ({ node, ...props }) => (
-        <p className="text-sm leading-relaxed m-0 mb-2" {...props} />
+        <p className="text-xs sm:text-sm leading-relaxed m-0 mb-1.5 sm:mb-2" {...props} />
     ),
     ul: ({ node, ...props }) => (
-        <ul className="list-disc list-outside pl-4 text-sm leading-relaxed m-0 my-2 py-0" {...props} />
+        <ul className="list-disc list-outside pl-3 sm:pl-4 text-xs sm:text-sm leading-relaxed m-0 my-1.5 sm:my-2 py-0" {...props} />
     ),
     ol: ({ node, ...props }) => (
-        <ol className="list-decimal list-outside pl-4 text-sm leading-relaxed m-0 my-2 py-0" {...props} />
+        <ol className="list-decimal list-outside pl-3 sm:pl-4 text-xs sm:text-sm leading-relaxed m-0 my-1.5 sm:my-2 py-0" {...props} />
     ),
     li: ({ node, ...props }) => (
-        <li className="leading-relaxed m-0 mb-1" {...props} />
+        <li className="leading-relaxed m-0 mb-0.5 sm:mb-1" {...props} />
     ),
     strong: ({ node, ...props }) => (
         <strong className="font-bold" {...props} />
@@ -43,22 +43,22 @@ const componentsMD = {
         <a className="text-blue-400 hover:underline hover:text-blue-300" target="_blank" rel="noopener noreferrer" {...props} />
     ),
     blockquote: ({ node, ...props }) => (
-        <blockquote className="border-l-4 border-gray-600 pl-3 py-1 italic text-gray-300 leading-none m-0 my-2" {...props} />
+        <blockquote className="border-l-4 border-gray-600 pl-2 sm:pl-3 py-0.5 sm:py-1 italic text-gray-300 leading-none m-0 my-1.5 sm:my-2" {...props} />
     ),
     code: ({ node, inline, ...props }) => {
         if (inline) {
             return (
-                <code className="bg-gray-800 rounded px-1.5 py-0.5 text-sm font-mono text-green-400" {...props} />
+                <code className="bg-gray-800 rounded px-1 sm:px-1.5 py-0.5 text-xs sm:text-sm font-mono text-green-400" {...props} />
             );
         }
         return (
-            <pre className="bg-gray-800 rounded p-3 text-sm overflow-x-auto leading-none m-0 my-2" {...props}>
+            <pre className="bg-gray-800 rounded p-2 sm:p-3 text-xs sm:text-sm overflow-x-auto leading-none m-0 my-1.5 sm:my-2" {...props}>
                 <code className="text-green-400">{props.children}</code>
             </pre>
         );
     },
     table: ({ node, ...props }) => (
-        <div className="overflow-x-auto max-h-[60dvh] overflow-y-auto my-2">
+        <div className="overflow-x-auto max-h-[60dvh] overflow-y-auto my-1.5 sm:my-2">
             <table className="w-full border-collapse border border-white/20 my-0 py-0" {...props} />
         </div>
     ),
@@ -72,10 +72,10 @@ const componentsMD = {
         <tr className="border-b border-white/5 hover:bg-white/5" {...props} />
     ),
     th: ({ node, ...props }) => (
-        <th className="py-2 px-3 text-white/70 text-xs font-medium text-left" {...props} />
+        <th className="py-1.5 sm:py-2 px-2 sm:px-3 text-white/70 text-[10px] sm:text-xs font-medium text-left" {...props} />
     ),
     td: ({ node, ...props }) => (
-        <td className="py-2 px-3 text-white text-xs" {...props} />
+        <td className="py-1.5 sm:py-2 px-2 sm:px-3 text-white text-[10px] sm:text-xs" {...props} />
     ),
 };
 
@@ -312,7 +312,7 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                         <div className="min-h-[80px] max-h-[200px] w-full border border-white/30 rounded-lg shadow-lg p-1 sm:p-2 bg-[#1a1a1a] backdrop-blur-sm flex gap-1">
                             <textarea
                                 ref={textareaRef}
-                                className={`flex-1 resize-none bg-transparent text-white outline-none text-base ${
+                                className={`flex-1 resize-none bg-transparent text-white outline-none text-xs ${
                                     isLoading ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                                 style={{
@@ -348,26 +348,26 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 sm:gap-2 mt-2 sm:mt-3">
                             {/* Card 1 - Price and Market Data */}
                             <div 
-                                onClick={() => simulateTyping("Compare AAPL, TSLA and NVDA Stock Price over the 2023-2024 period.")}
+                                onClick={() => simulateTyping("Compare AAPL, TSLA and NVDA Stock Close Price for Jan 2024 and show a table comapring the results.")}
                                 className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1 cursor-pointer hover:bg-white/5"
                             >
                                 <div className="font-semibold text-xs mb-1 flex items-center gap-2">
                                     <TrendingUp className="w-4 h-4" />
                                     Price & Market Data
                                 </div>
-                                <div className="text-xs text-white/70">Compare AAPL, TSLA and NVDA Stock Price over the 2023-2024 period.</div>
+                                <div className="text-xs text-white/70">Compare AAPL, TSLA and NVDA Stock Close Price over Jan 2024 and show a table comapring the results.</div>
                             </div>
 
                             {/* Card 2 - Company Information */}
                             <div 
-                                onClick={() => simulateTyping("Is latest news about TSLA bullish or bearish?")}
+                                onClick={() => simulateTyping("Compare TSLA and AAPL News Sentiment over the last few days.")}
                                 className="bg-transparent border border-white/20 rounded-lg p-2 sm:p-3 w-full text-white/90 shadow-[0_0_10px_rgba(255,255,255,0.08)] hover:shadow-[0_0_15px_rgba(255,255,255,0.12)] transition-shadow flex flex-col gap-1 cursor-pointer hover:bg-white/5"
                             >
                                 <div className="font-semibold text-xs mb-1 flex items-center gap-2">
                                     <LineChart className="w-4 h-4" />
                                     Company News
                                 </div>
-                                <div className="text-xs text-white/70">Is latest news about TSLA bullish or bearish?</div>
+                                <div className="text-xs text-white/70">Compare TSLA and AAPL News Sentiment over the last few days.</div>
                             </div>
 
                             {/* Card 3 - Technical Analysis */}
@@ -431,7 +431,7 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                                             key={idx}
                                             className={idx === messages.length - 1 ? "mb-16" : ""}
                                         >
-                                            <h2 className="text-3xl font-bold text-white mb-2 m-0">{msg.user}</h2>
+                                            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 m-0">{msg.user}</h2>
                                             <div className="text-lg text-white min-h-[24px]">
                                                 <ReactMarkdown
                                                     rehypePlugins={[rehypeHighlight, rehypeRaw]}
@@ -460,11 +460,11 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                         </div>
 
                         {/* Textarea section at bottom */}
-                        <div className="w-[75%] min-w-[500px] max-w-[800px] mx-auto px-5 pb-10">
-                            <div className="min-h-[80px] max-h-[200px] w-full border border-white/30 rounded-lg shadow-lg p-3 bg-[#1a1a1a] backdrop-blur-sm flex gap-2">
+                        <div className="w-[95%] sm:w-[85%] md:w-[75%] min-w-[280px] max-w-[800px] mx-auto px-2 sm:px-5 pb-10">
+                            <div className="min-h-[80px] max-h-[200px] w-full border border-white/30 rounded-lg shadow-lg p-2 sm:p-3 bg-[#1a1a1a] backdrop-blur-sm flex gap-2">
                                 <textarea
                                     ref={textareaRef}
-                                    className={`flex-1 resize-none bg-transparent text-white outline-none text-base ${
+                                    className={`flex-1 resize-none bg-transparent text-white outline-none text-base text-xs sm:text-base ${
                                         isLoading ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
                                     style={{
@@ -484,7 +484,7 @@ function ChatHome({ messages, updateMessages, initialMessage, onSendMessage, set
                                     disabled={isLoading}
                                 />
                                 <button
-                                    className={`px-3 h-fit my-auto py-2 bg-[#2e3d5c] text-white rounded-lg transition-colors flex items-center justify-center ${
+                                    className={`px-2 sm:px-3 h-fit my-auto py-2 bg-[#2e3d5c] text-white rounded-lg transition-colors flex items-center justify-center ${
                                         isLoading ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
                                     onClick={handleSend}

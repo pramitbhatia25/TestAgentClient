@@ -35,7 +35,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
 
   return (
     <div className={`h-[50px] border-b border-gray-900 w-full bg-black flex flex-row items-center pr-4`}>
-      <div className={`flex flex-row items-center h-full border-r border-gray-900 ${isCollapsed ? 'w-[60px]' : 'w-[200px]'}`}>
+      <div className={`flex flex-row items-center h-full border-r border-gray-900 ${isCollapsed ? 'w-[60px]' : 'sm:w-fit md:w-[200px]'}`}>
         {isCollapsed ? (
           <button
             onClick={toggleSidebar}
@@ -49,7 +49,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
             <div className="flex items-center justify-between w-full px-4">
               <div 
                 className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => setSelectedEnvironment("Home")}
+                onClick={() => window.location.reload()}
               >
                 <div className="flex items-center justify-center w-[25px]">
                   <img src={brLogo} alt="Bullrun Logo" className="h-[25px]" />
@@ -60,7 +60,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
               </div>
               <button
                 onClick={toggleSidebar}
-                className="flex items-center gap-2 px-2 py-1 text-xs border border-gray-700 hover:bg-gray-700 ml-2 rounded-md transition-colors"
+                className="hidden md:flex items-center gap-2 px-2 py-1 text-xs border border-gray-700 hover:bg-gray-700 ml-2 rounded-md transition-colors"
                 title="Collapse sidebar"
               >
                 <ChevronLeft size={13} />
@@ -70,7 +70,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
         )}
       </div>
 
-      <div className="flex items-center ml-4 flex-grow justify-between">
+      <div className="flex items-center md:ml-4 sm:ml-0 flex-grow justify-between">
         {/* User authentication section commented out
         {user ? (
           <>
@@ -118,7 +118,7 @@ export default function UpdatedNavbar({ /* user, loading, handleLogout, handleSu
             href="https://calendly.com/prashanthkonda/bullrun"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 text-xs border border-gray-700 hover:bg-gray-700 rounded-md transition-colors h-[28px]"
+            className="flex flex-shrink-0 items-center gap-2 px-3 py-1.5 text-xs border border-gray-700 hover:bg-gray-700 rounded-md transition-colors h-[28px]"
           >
             <Calendar size={13} />
             <span>Book Meeting</span>

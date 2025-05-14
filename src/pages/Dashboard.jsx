@@ -177,7 +177,8 @@ function Dashboard() {
           />
         </div>
         <div className="w-full h-[calc(100dvh-50px)] overflow-auto flex">
-          <div className={`h-full bg-black border-r border-gray-900 transition-all duration-300 ${isSidebarCollapsed ? 'w-[60px]' : 'w-[200px]'}`}>
+          {/* Hide sidebar on mobile, show on md and up */}
+          <div className={`hidden md:block h-full bg-black border-r border-gray-900 transition-all duration-300 ${isSidebarCollapsed ? 'w-[60px]' : 'w-[200px]'}`}>
             <Sidebar
               selectedEnvironment={selectedEnvironment}
               setSelectedEnvironment={setSelectedEnvironment}
@@ -185,7 +186,8 @@ function Dashboard() {
               setIsCollapsed={setIsSidebarCollapsed}
             />
           </div>
-          <div className="flex-1 bg-black p-4 overflow-auto z-50">
+          {/* Full width on mobile, flex-1 on md and up */}
+          <div className="w-full md:flex-1 bg-black p-4 overflow-auto z-50">
             {renderChatComponent()}
           </div>
         </div>
